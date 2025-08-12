@@ -1,0 +1,31 @@
+That's a great question, and it's a very common point of confusion for people learning the command line.
+
+The short answer is: **No, you cannot.**
+
+The `rm` command is exclusively for **r**e**m**oving (deleting) files. It has no capability to rename or move them.
+
+### The Correct Command: `mv`
+
+The correct command for what you want to do is `mv` (short for **m**o**v**e). The `mv` command is used for both moving files to different directories and for renaming them in the same directory.
+
+Here is the exact command you need:
+
+```bash
+mv graph_20250812114659.pdf graph_20250812114659-3min.pdf
+```
+
+### Breakdown of `mv`
+
+The syntax is very simple:
+`mv [source_file] [destination_file]`
+
+*   **When `destination_file` is a new name in the same directory:** It renames the file.
+*   **When `destination_file` is a path to a different directory:** It moves the file.
+    *   `mv file.txt /home/stevecos/Documents/` (moves `file.txt` into the `Documents` folder)
+*   **When `destination_file` is a path to a different directory AND a new name:** It moves and renames the file simultaneously.
+    *   `mv file.txt /home/stevecos/Documents/archive.txt`
+
+It's a very powerful and versatile command. Just remember:
+*   `rm` = remove/delete
+*   `mv` = move/rename
+*   `cp` = copy
