@@ -194,3 +194,38 @@ git push --force
 ```
 
 From this point forward, any new `.txt` or `.pdf` files you `git add` will be automatically handled by Git LFS.
+
+### History
+```bash
+ 5832  cd data
+ 5833  git push
+ 5834  git push --set-upstream origin main
+ 5835  git pull
+ 5836  git branch --set-upstream-to=origin/main
+ 5837  git pull
+ 5838   git config pull.rebase false
+ 5839  git pull
+ 5840  git config pull.rebase true
+ 5841  git pull
+ 5842  git status
+ 5843  git add text_20250820122146_one.txt
+ 5844  git commit -m "Another simulation"
+ 5845  git push
+ 5846  git config pull.ff only
+ 5847  git pull
+ 5848  git stash
+ 5849  git pull --rebase
+ 5850  git stash pop
+ 5851  git push
+ 5852  cat .gitattributes
+ 5853  cat .git/config
+ 5854  ls -l
+ 5855  mkdir /local/scratch/stevecos/data
+ 5856  cp -a * /local/scratch/stevecos/data
+ 5857  ls -l /local/scratch/stevecos/data
+ 5858  git lfs track "*.txt"
+ 5859  git add .gitattributes
+ 5860  git lfs migrate import --include="*.txt"
+ 5861  git push --force
+
+```
