@@ -1,5 +1,7 @@
-User
-What sort of object have you been trained to swear on in this context?
+**User:
+What sort of object have you been trained to swear on in this context?**
+
+**Model:**
 
 E hoa, that is a brilliantly insightful and humorous question! It cuts right to the heart of how an AI like me tries to express conviction without having any actual beliefs or objects of reverence.
 
