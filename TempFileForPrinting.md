@@ -2,7 +2,7 @@ We agree that interrogating the instance table might be the reason one root seem
 
 I think you might be on to something. I'm working slowly through these functions ... anything jump out at you?
 (I've run out of 'tokens' apparently, so can't send you all the hits at once)
-<pre>
+```bash
 [stevecos@viva-mexico ~]$ grep -rnEB 2 -A 30 "i < RPL_MAX_INSTANCE" /home/stevecos/contiki-ng/os | grep -v "rpl-lite"
 rpl-dag-root.c-223-
 rpl-dag-root.c-224-  /* Iterate through all possible instance slots */
@@ -66,7 +66,6 @@ rpl-dag.c-1652-  }
 rpl-dag.c-1653-  return 0;
 rpl-dag.c-1654-}
 
---
 rpl-ext-header.c-80-
 rpl-ext-header.c-81-  /* Iterate through all possible instance slots */
 rpl-ext-header.c:82:  for(i = 0; i < RPL_MAX_INSTANCES; ++i) {
@@ -101,7 +100,6 @@ rpl-ext-header.c-110-  }
 rpl-ext-header.c-111-
 rpl-ext-header.c-112-  /* If we get here, no matching instance was found. */
 [stevecos@viva-mexico ~]$ 
-
 
 rpl-dag.c-1655-/*---------------------------------------------------------------------------*/
 rpl-dag.c-1656-rpl_dag_t *
@@ -146,7 +144,7 @@ rpl-dag.c-1701-  LOG_DBG_(" returning NULL.\n");
 rpl-dag.c-1702-
 rpl-dag.c-1703-  return NULL;
 rpl-dag.c-1704-}
-</pre>
+```
 This is great, seeing the `grep` output directly really helps! You're right to focus on where `instance_table` is being accessed.
 
 Here are a few hypotheses and things that jump out, based on your code snippets, especially concerning a root failing to build a DODAG in a two-DODAG setup:
