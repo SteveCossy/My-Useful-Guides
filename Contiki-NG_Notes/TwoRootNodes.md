@@ -198,3 +198,46 @@ This approach correctly separates the rooting responsibility across different ph
 
 To help visualize this architecture, here's a conceptual diagram:
 
+You're right, explicitly hardcoding the `dag_id2` with fixed values like `0x0209, 0x0009, 0x0009, 0x0009` is not ideal for general use, especially when you want it to be based on the local node's address. Basing it on the link-local address (or part of it) makes much more sense for a dynamic setup.
+
+Here are the lines to achieve this, using the current node's link-layer address (which forms the IID of its link-local address) to construct `dag_id2` while still using `UIP_DS6_DEFAULT_PREFIX2` for the prefix:
+
+```c
+    uip_ipaddr_t dag_id2;
+    uip_ip6addr_copy(&dag_id2, &uip_ds6_if.addr_list[0].ipaddr); // Start by copying an existing address (e.g., link-local)
+    dag_id2.u16[0] = UIP_HTONS(UIP_DS6_DEFAULT_PREFIX2 << 8);    // Set the first 16 bits (the prefix)
+    dag_id2.u16[1] = 0;                                          // Clear the rest of the second 16-bit word if needed
+                                                                 // The IID part (last 64 bits) is already from the node's address.
+```
+
+**Explanation:**
+
+1.  **`uip_ip6addr_copy(&dag_id2, &uip_ds6_if.addr_list[0].ipaddr);`**
+    *   This line is the simplest way to get the *current node's Interface Identifier (IID)* into `dag_id2`.
+    *   `uip_ds6_if.addr_list[0].ipaddr` typically holds the node's link-local address (`fe80::...`). By copying this, the lower 64 bits (the IID) of `dag_id2` will correctly reflect the current node's hardware address.
+    *   We are primarily interested in the last 8 bytes (the IID) of this address to make the DAG ID unique to the node.
+
+2.  **`dag_id2.u16[0] = UIP_HTONS(UIP_DS6_DEFAULT_PREFIX2 << 8);`**
+    *   This line modifies the *prefix part* of `dag_id2`.
+    *   `dag_id2.u16[0]` refers to the first 16-bit word of the IPv6 address (the most significant part).
+    *   `UIP_DS6_DEFAULT_PREFIX2` is typically defined as a 16-bit number (e.g., `0xfd02`).
+    *   `<< 8` shifts this prefix into the correct position within the 16-bit word (e.g., `0xfd02` becomes `0xfd020000`).
+    *   `UIP_HTONS` ensures the byte order is correct for network transmission (Host TO Network Short).
+
+3.  **`dag_id2.u16[1] = 0;`**
+    *   The prefix is usually 64 bits, meaning the first four 16-bit words (`u16[0]` to `u16[3]`).
+    *   Since `UIP_DS6_DEFAULT_PREFIX2` usually only defines the first part of a 64-bit prefix (e.g., `fd02`), the rest of `u16[1]`, `u16[2]`, `u16[3]` might contain garbage from the initial `uip_ip6addr_copy` (e.g., `0x0000:0000` or parts of the original link-local prefix like `fe80`).
+    *   Setting `dag_id2.u16[1] = 0;` explicitly clears the second 16-bit word, ensuring that your DAG ID starts with `fd02::` and then has the IID. If `UIP_DS6_DEFAULT_PREFIX2` is meant to be the start of a /64 prefix (i.e. `fd02:0000:0000:0000`), then you might want to clear `u16[1]`, `u16[2]`, `u16[3]` as well to ensure a clean prefix. For a simple `fd02::/64` type prefix, just setting `u16[0]` and clearing the next three might be necessary:
+        ```c
+        uip_ipaddr_t dag_id2;
+        uip_ip6addr_copy(&dag_id2, &uip_ds6_if.addr_list[0].ipaddr); // Copies IID and potentially link-local prefix
+        dag_id2.u16[0] = UIP_HTONS(UIP_DS6_DEFAULT_PREFIX2 << 8); // Set the top 16 bits of the prefix
+        dag_id2.u16[1] = 0; // Clear the next 16 bits
+        dag_id2.u16[2] = 0; // Clear the next 16 bits
+        dag_id2.u16[3] = 0; // Clear the final 16 bits of the 64-bit prefix
+        // The last 64 bits (u16[4] to u16[7]) are the IID copied from the node's address
+        ```
+    *   The IID part (last 64 bits, `u16[4]` to `u16[7]`) will remain as copied from the node's link-local address, making the DAG ID uniquely derived from the node's identity.
+
+This revised approach for generating `dag_id2` is much more robust and flexible for different physical nodes acting as roots.
+
